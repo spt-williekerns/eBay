@@ -1,0 +1,24 @@
+
+<product>
+    <item_id>Intel_537EPG</item_id>
+    <product_name>Intel 537EPG V.92 PCI Modem</product_name>
+    <total_units_sold>12</total_units_sold>
+    <average_sale_price>15.50</average_sale_price>
+    <median_sale_price>14.95</median_sale_price>
+    <price_range>
+        <min_price>5.95</min_price>
+        <max_price>25.00</max_price>
+    </price_range>
+    <average_shipping_cost>5.50</average_shipping_cost>
+    <sell_through_rate>70</sell_through_rate>
+    <average_time_on_market>5</average_time_on_market>
+    <market_trends>Consistent interest for legacy system use</market_trends>
+    <seller_information>
+        <average_feedback_score>99.5</average_feedback_score>
+        <top_rated_seller_percentage>60</top_rated_seller_percentage>
+    </seller_information>
+    <listing_formats>
+        <auction>30</auction>
+        <buy_it_now>70</buy_it_now>
+    </listing_formats>
+</product>
