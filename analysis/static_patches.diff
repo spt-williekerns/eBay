@@ -1,0 +1,69 @@
+--- a/tsconfig.json
++++ b/tsconfig.json
+@@ -5,6 +5,8 @@
+     "module": "commonjs",
+     "lib": ["es2019", "dom"],
+     "jsx": "react-native",
+     "strict": true,
++    "noUnusedLocals": true,
++    "noUnusedParameters": true,
+     "moduleResolution": "node",
+
+--- /dev/null
++++ b/.eslintrc.js
+@@ -0,0 +1,11 @@
++module.exports = {
++  root: true,
++  extends: '@react-native',
++  parser: '@typescript-eslint/parser',
++  plugins: ['react-hooks'],
++  rules: {
++    'react-hooks/rules-of-hooks': 'error',
++    'react-hooks/exhaustive-deps': 'warn',
++  },
++};
+
+--- a/src/screens/HomeScreen.tsx
++++ b/src/screens/HomeScreen.tsx
+@@ -83,7 +83,7 @@
+   /**
+    * Handle voice commands
+    */
+-  const handleVoiceCommand = (command: any) => {
++  const handleVoiceCommand = (command: VoiceCommand) => {
+     if (command.type === 'navigate') {
+
+--- a/src/store/slices/watchlistSlice.ts
++++ b/src/store/slices/watchlistSlice.ts
+@@ -80,7 +80,7 @@
+       state.sortDirection = action.payload.direction;
+
+       // Sort lots based on selected option
+-      state.lots.sort((a, b) => {
++      state.lots = [...state.lots].sort((a, b) => {
+         let comparison = 0;
+
+--- a/package.json
++++ b/package.json
+@@ -55,6 +55,8 @@
+     "@testing-library/jest-native": "^5.4.3",
++    "@types/jest": "^29.5.11",
++    "@types/node": "^20.10.6",
+     "typescript": "^5.3.3",
+
+--- a/src/store/slices/bidSlice.ts
++++ b/src/store/slices/bidSlice.ts
+@@ -74,11 +74,6 @@
+
+     updateBidStatus: (state, action: PayloadAction<{ lotId: string; isWinning: boolean }>) => {
+-      const { lotId, isWinning } = action.payload;
+-      const lot = state.activeBids.find(l => l.id === lotId);
+-      if (lot) {
+-        const relatedBids = state.userBids.filter(b => b.lotId === lotId);
+-        relatedBids.forEach(bid => {
+-          bid.isWinning = isWinning;
+-        });
+-      }
++      // TODO: Implement outbid notifications (see inferred_spec.md Q4)
++      // Currently orphaned - no caller exists
+     },
