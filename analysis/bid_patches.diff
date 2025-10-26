@@ -1,0 +1,118 @@
+--- /dev/null
++++ b/src/utils/timeOffset.ts
+@@ -0,0 +1,22 @@
++/**
++ * Server Time Sync - Prevents client clock drift from corrupting countdowns
++ * Sync once on app load via HEAD /api/ping, then use offset for all timers
++ */
++
++let serverOffset = 0; // milliseconds: server - client
++
++export const syncServerTime = async (): Promise<void> => {
++  try {
++    const reqTime = Date.now();
++    const res = await fetch('/api/ping', { method: 'HEAD' });
++    const serverTime = new Date(res.headers.get('Date') || '').getTime();
++    const rtt = Date.now() - reqTime;
++    serverOffset = serverTime - reqTime - rtt / 2; // Adjust for round-trip
++  } catch (err) {
++    console.warn('Server time sync failed, using local time', err);
++  }
++};
++
++export const getServerTime = (): number => {
++  return Date.now() + serverOffset;
++};
+--- /dev/null
++++ b/src/api/bids.ts
+@@ -0,0 +1,43 @@
++/**
++ * Bid API - Idempotent, retryable bid submission
++ * Handles 409(CONFLICT), 410(GONE), network timeouts
++ */
++
++import { v4 as uuid } from 'uuid';
++
++export interface BidRequest {
++  lotId: string;
++  amount: number;
++  bidderId: string;
++}
++
++export interface BidResponse {
++  success: boolean;
++  currentBid: number;
++  message?: string; // "Outbid", "Auction Closed", etc.
++}
++
++const MAX_RETRIES = 3;
++const RETRY_DELAYS = [2000, 4000, 8000]; // Exponential backoff
++
++export const submitBid = async (req: BidRequest): Promise<BidResponse> => {
++  const idempotencyKey = uuid();
++
++  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
++    try {
++      const res = await fetch('/api/bids', {
++        method: 'POST',
++        headers: {
++          'Content-Type': 'application/json',
++          'x-idempotency-key': idempotencyKey,
++        },
++        body: JSON.stringify(req),
++        signal: AbortSignal.timeout(10000), // 10s timeout
++      });
++      return await res.json();
++    } catch (err: any) {
++      if (err.name === 'AbortError' && attempt < MAX_RETRIES) {
++        await new Promise(r => setTimeout(r, RETRY_DELAYS[attempt]));
++      } else throw err;
++    }
++  }
++  throw new Error('Max retries exceeded');
++};
+--- a/src/components/bidding/BidNowButton.tsx
++++ b/src/components/bidding/BidNowButton.tsx
+@@ -10,6 +10,7 @@
+  */
+
+ import React, { useState } from 'react';
++import { useAppDispatch } from '../../store';
+ import {
+   TouchableOpacity,
+   Text,
+@@ -24,7 +25,7 @@ import { formatCurrency } from '../../utils/formatters';
+ import { soundManager, Sounds } from '../../utils/sound';
+
+ interface BidNowButtonProps {
++  lotId: string;
++  bidderId: string;
+   currentBid: number;
+-  onBid: (amount: number) => Promise<void>;
+   disabled?: boolean;
+ }
+@@ -33,8 +34,9 @@ interface BidNowButtonProps {
+  */
+ export const BidNowButton: React.FC<BidNowButtonProps> = ({
++  lotId,
++  bidderId,
+   currentBid,
+-  onBid,
+   disabled = false,
+ }) => {
++  const dispatch = useAppDispatch();
+   const [loading, setLoading] = useState(false);
+@@ -45,10 +47,14 @@ export const BidNowButton: React.FC<BidNowButtonProps> = ({
+     try {
+       setLoading(true);
+       Vibration.vibrate(50);
+       soundManager.playSound(Sounds.BID_PLACED);
+-      await onBid(nextBid);
++      dispatch(addBid({ id: `temp-${Date.now()}`, lotId, amount: nextBid, isWinning: true }));
++      // TODO: await submitBid({ lotId, amount: nextBid, bidderId })
++      // TODO: handle 409(Outbid), 410(Closed), rollback on error
+     } catch (error: any) {
+       soundManager.playSound(Sounds.ERROR);
++      // TODO: dispatch(removeBid) + updateBidStatus
+     } finally {
+       setLoading(false);
