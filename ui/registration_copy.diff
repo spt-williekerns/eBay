@@ -1,0 +1,78 @@
+--- a/src/navigation/TabNavigator.tsx
++++ b/src/navigation/TabNavigator.tsx
+@@ -61,7 +61,7 @@ export const TabNavigator: React.FC = () => {
+       <Tab.Screen
+         name="Watchlist"
+         component={WatchlistScreen}
+         options={{
+-          tabBarLabel: 'WATCH',
++          tabBarLabel: 'MY WATCHLIST',
+           tabBarIcon: ({ focused }) => (
+             <Text style={[styles.icon, focused && styles.iconActive]}>⭐</Text>
+           ),
+--- a/src/screens/ProfileScreen.tsx
++++ b/src/screens/ProfileScreen.tsx
+@@ -80,7 +80,7 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
+       {/* User Info Section */}
+       <View style={styles.section}>
+-        <Text style={styles.sectionTitle}>USER INFORMATION</Text>
++        <Text style={styles.sectionTitle}>My Information</Text>
+
+         {/* Bidder ID */}
+         <View style={styles.infoRow}>
+-          <Text style={styles.label}>Bidder ID:</Text>
++          <Text style={styles.label}>Your Bidder Number:</Text>
+           <Text style={[styles.value, styles.bidderId]}>{user.bidderId}</Text>
+         </View>
+
+@@ -141,7 +141,7 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
+         {/* Voice Input */}
+         <View style={styles.settingRow}>
+-          <Text style={styles.settingLabel}>Voice Input</Text>
++          <Text style={styles.settingLabel}>Talk to Bid (say "Bid Now")</Text>
+           <Switch
+
+@@ -157,7 +157,7 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
+         {/* Sound Effects */}
+         <View style={styles.settingRow}>
+-          <Text style={styles.settingLabel}>Sound Effects</Text>
++          <Text style={styles.settingLabel}>Bid Sounds & Alerts</Text>
+           <Switch
+
+@@ -189,7 +189,7 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
+         {/* Haptic Feedback */}
+         <View style={styles.settingRow}>
+-          <Text style={styles.settingLabel}>Haptic Feedback</Text>
++          <Text style={styles.settingLabel}>Button Vibration</Text>
+           <Switch
+--- a/src/screens/HomeScreen.tsx
++++ b/src/screens/HomeScreen.tsx
+@@ -41,6 +41,7 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+   const dispatch = useAppDispatch();
+   const { events, loading } = useAppSelector((state) => state.auction);
+   const [refreshing, setRefreshing] = useState(false);
++  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+   useEffect(() => {
+     loadEvents();
+@@ -66,7 +67,8 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+       }
+     } catch (error) {
+-      console.error('Failed to load events:', error);
++      setErrorMsg('Could not load auctions. Pull down to try again.');
++      setTimeout(() => setErrorMsg(null), 5000);
+     } finally {
+       dispatch(setLoading(false));
+     }
+@@ -140,6 +142,12 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+
+   return (
+     <View style={styles.container}>
++      {/* Error Banner */}
++      {errorMsg && (
++        <View style={styles.errorBanner} role="alert" aria-live="polite">
++          <Text style={styles.errorText}>⚠️ {errorMsg}</Text>
++        </View>
++      )}
+       {/* Header */}
+       <LinearGradient colors={Gradients.lake} style={styles.header}>
