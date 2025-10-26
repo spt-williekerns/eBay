@@ -1,0 +1,100 @@
+--- a/src/components/bidding/BidNowButton.tsx
++++ b/src/components/bidding/BidNowButton.tsx
+@@ -71,9 +71,12 @@ export const BidNowButton: React.FC<BidNowButtonProps> = ({
+     <TouchableOpacity
+       style={[styles.button, disabled && styles.buttonDisabled]}
+       onPress={handleBid}
+       disabled={disabled || loading}
+       activeOpacity={0.7}
++      accessibilityRole="button"
++      accessibilityLabel={`Bid ${formatCurrency(nextBid)}`}
+     >
+       {loading ? (
+-        <ActivityIndicator size="large" color={KentuckyLakeTheme.white} />
++        <ActivityIndicator size="large" color={KentuckyLakeTheme.white}
++          accessibilityLabel="Submitting bid" />
+       ) : (
+         <>
+           <Text style={styles.buttonText}>BID NOW</Text>
+--- a/src/components/common/VoiceInputButton.tsx
++++ b/src/components/common/VoiceInputButton.tsx
+@@ -70,9 +70,11 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
+     <TouchableOpacity
+       style={[styles.button, disabled && styles.buttonDisabled]}
+       onPress={toggleListening}
+       disabled={disabled}
+       activeOpacity={0.7}
++      accessibilityRole="button"
++      accessibilityLabel={isListening ? 'Stop voice input' : 'Start voice input'}
++      accessibilityState={{ disabled }}
+     >
+       {isListening ? (
+         <Animatable.View animation="pulse" iterationCount="infinite" duration={1000}>
+--- a/src/components/common/CountdownTimer.tsx
++++ b/src/components/common/CountdownTimer.tsx
+@@ -115,7 +115,10 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
+   return (
+     <Animatable.View
+       ref={timerRef}
+       style={[styles.container, { backgroundColor: getTimerColor() }]}
++      accessibilityRole="timer"
++      accessibilityLabel="Auction ends in"
++      accessibilityLiveRegion="polite"
+     >
+       <Text style={styles.label}>TIME LEFT</Text>
+       <Text style={styles.timer}>{timeRemaining}</Text>
+--- a/src/navigation/TabNavigator.tsx
++++ b/src/navigation/TabNavigator.tsx
+@@ -43,7 +43,8 @@ export const TabNavigator: React.FC = () => {
+         options={{
+           tabBarLabel: 'HOME',
+           tabBarIcon: ({ focused }) => (
+-            <Text style={[styles.icon, focused && styles.iconActive]}>🏠</Text>
++            <Text style={[styles.icon, focused && styles.iconActive]}
++                  accessibilityElementsHidden={true}>🏠</Text>
+           ),
++          tabBarAccessibilityLabel: 'Home tab',
+         }}
+@@ -53,7 +54,8 @@ export const TabNavigator: React.FC = () => {
+         options={{
+           tabBarLabel: 'BIDS',
+           tabBarIcon: ({ focused }) => (
+-            <Text style={[styles.icon, focused && styles.iconActive]}>💰</Text>
++            <Text style={[styles.icon, focused && styles.iconActive]}
++                  accessibilityElementsHidden={true}>💰</Text>
+           ),
++          tabBarAccessibilityLabel: 'My Bids tab',
+         }}
+@@ -63,7 +65,8 @@ export const TabNavigator: React.FC = () => {
+         options={{
+           tabBarLabel: 'WATCH',
+           tabBarIcon: ({ focused }) => (
+-            <Text style={[styles.icon, focused && styles.iconActive]}>⭐</Text>
++            <Text style={[styles.icon, focused && styles.iconActive]}
++                  accessibilityElementsHidden={true}>⭐</Text>
+           ),
++          tabBarAccessibilityLabel: 'Watchlist tab',
+         }}
+@@ -73,7 +76,8 @@ export const TabNavigator: React.FC = () => {
+         options={{
+           tabBarLabel: 'PROFILE',
+           tabBarIcon: ({ focused }) => (
+-            <Text style={[styles.icon, focused && styles.iconActive]}>👤</Text>
++            <Text style={[styles.icon, focused && styles.iconActive]}
++                  accessibilityElementsHidden={true}>👤</Text>
+           ),
+         }}
+--- a/src/screens/ProfileScreen.tsx
++++ b/src/screens/ProfileScreen.tsx
+@@ -143,6 +143,7 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
+           <Text style={styles.settingLabel}>Voice Input</Text>
+           <Switch
+             value={settings.voiceEnabled}
++            accessibilityLabel="Voice Input"
+             onValueChange={() => toggleSetting('voiceEnabled')}
+@@ -159,6 +160,7 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
+           <Text style={styles.settingLabel}>Sound Effects</Text>
+           <Switch
+             value={settings.soundEnabled}
++            accessibilityLabel="Sound Effects"
+             onValueChange={() => toggleSetting('soundEnabled')}
