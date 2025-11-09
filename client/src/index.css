@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Senior-Friendly Global Styles */
+@layer base {
+  body {
+    @apply text-lg leading-relaxed text-gray-900;
+    font-size: 18px;
+    line-height: 1.6;
+  }
+
+  /* Ensure minimum touch target size */
+  button, a, input, select {
+    min-height: 44px;
+  }
+
+  /* Remove focus outline, replace with obvious border */
+  *:focus {
+    outline: none;
+  }
+
+  *:focus-visible {
+    @apply ring-4 ring-blue-500 ring-offset-2;
+  }
+
+  /* Smooth scroll for better readability */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Primary button (big, bold, high contrast) */
+  .btn-primary {
+    @apply w-full py-4 px-8 bg-blue-600 text-white text-xl font-bold rounded-lg;
+    @apply hover:bg-blue-700 active:bg-blue-800;
+    @apply disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed;
+    @apply transition-colors duration-150;
+    min-height: 60px;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply py-3 px-6 bg-white text-blue-600 text-lg font-semibold;
+    @apply border-2 border-blue-600 rounded-lg hover:bg-blue-50;
+    min-height: 52px;
+  }
+
+  /* Card component */
+  .card {
+    @apply bg-white border-2 border-gray-200 rounded-lg p-6 shadow-sm;
+    @apply hover:shadow-md transition-shadow;
+  }
+
+  /* Input field */
+  .input {
+    @apply w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg;
+    @apply focus:border-blue-600 focus:ring-2 focus:ring-blue-200 outline-none;
+  }
+
+  /* Error message */
+  .error {
+    @apply bg-red-50 border-2 border-red-600 rounded-lg p-4;
+    @apply text-red-600 text-lg font-semibold;
+  }
+
+  /* Success message */
+  .success {
+    @apply bg-green-50 border-2 border-green-600 rounded-lg p-4;
+    @apply text-green-600 text-lg font-semibold;
+  }
+
+  /* Info message */
+  .info {
+    @apply bg-blue-50 border-2 border-blue-600 rounded-lg p-4;
+    @apply text-blue-600 text-lg font-semibold;
+  }
+}
